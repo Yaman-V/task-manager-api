@@ -11,6 +11,7 @@ public class Task {
         DONE,
         SUSPENDED
     }
+
     private static final AtomicLong ID_COUNTER = new AtomicLong(1);
 
     private final Long id;
@@ -18,11 +19,11 @@ public class Task {
     private String description;
     private Status status;
 
-    public Task( String title, String description , Status status) {
+    public Task(String title, String description, Status status) {
         this.id = ID_COUNTER.getAndIncrement();
         this.title = Objects.requireNonNull(title, "title must not be null");
-        this.description = (description != null)? description : "";
-        this.status = (status != null)? status : Status.TODO;
+        this.description = (description != null) ? description : "";
+        this.status = (status != null) ? status : Status.TODO;
     }
 
     public Long getId() {

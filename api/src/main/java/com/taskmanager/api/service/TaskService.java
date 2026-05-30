@@ -12,13 +12,13 @@ public class TaskService {
     private List<Task> tasks = new ArrayList<>();
 
     public TaskService() {
-        tasks.add(new Task( "Master Spring Boot-1", "Learn annotations and MVC architecture", Task.Status.DONE));
-        tasks.add(new Task( "Master Spring Boot-2", "Learn annotations and MVC architecture", Task.Status.IN_PROGRESS));
-        tasks.add(new Task( "Review", "Review what I have learned", Task.Status.TODO));
-        tasks.add(new Task( "Submit", "Send the project to friends", Task.Status.SUSPENDED));
+        tasks.add(new Task("Master Spring Boot-1", "Learn annotations and MVC architecture", Task.Status.DONE));
+        tasks.add(new Task("Master Spring Boot-2", "Learn annotations and MVC architecture", Task.Status.IN_PROGRESS));
+        tasks.add(new Task("Review", "Review what I have learned", Task.Status.TODO));
+        tasks.add(new Task("Submit", "Send the project to friends", Task.Status.SUSPENDED));
     }
 
-    public List<Task> getAllTasks(){
+    public List<Task> getAllTasks() {
         return tasks;
     }
 
@@ -28,12 +28,12 @@ public class TaskService {
                 .findFirst();
     }
 
-    public Task addTask(Task task){
+    public Task addTask(Task task) {
         tasks.add(task);
         return task;
     }
 
-    public Optional<Task> updateTask(Long id , Task updatedTask) {
+    public Optional<Task> updateTask(Long id, Task updatedTask) {
         for (Task task : tasks) {
             if (task.getId().equals(id)) {
                 task.setTitle(updatedTask.getTitle());
@@ -45,7 +45,7 @@ public class TaskService {
         return Optional.empty();
     }
 
-    public boolean deleteTask(Long id){
-        return  tasks.removeIf(task -> task.getId().equals(id));
+    public boolean deleteTask(Long id) {
+        return tasks.removeIf(task -> task.getId().equals(id));
     }
 }

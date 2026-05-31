@@ -1,4 +1,4 @@
-package com.taskmanager.api.model;
+package com.taskmanager.api.entity;
 
 import jakarta.persistence.*;
 

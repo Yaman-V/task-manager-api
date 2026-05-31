@@ -1,51 +1,47 @@
 package com.taskmanager.api.service;
 
-import com.taskmanager.api.model.Task;
+import com.taskmanager.api.entity.Task;
+import com.taskmanager.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TaskService {
-    private List<Task> tasks = new ArrayList<>();
+    private final TaskRepository taskRepository;
 
-    public TaskService() {
-        tasks.add(new Task("Master Spring Boot-1", "Learn annotations and MVC architecture", Task.Status.DONE));
-        tasks.add(new Task("Master Spring Boot-2", "Learn annotations and MVC architecture", Task.Status.IN_PROGRESS));
-        tasks.add(new Task("Review", "Review what I have learned", Task.Status.TODO));
-        tasks.add(new Task("Submit", "Send the project to friends", Task.Status.SUSPENDED));
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     public List<Task> getAllTasks() {
-        return tasks;
+        return taskRepository.findAll();
     }
 
-    public Optional<Task> getTaskByID(Long id) {
-        return tasks.stream()
-                .filter(task -> task.getId().equals(id))
-                .findFirst();
+    public Optional<Task> getTaskById(Long id) {
+        return taskRepository.findById(id);
     }
 
     public Task addTask(Task task) {
-        tasks.add(task);
-        return task;
+        return taskRepository.save(task);
     }
 
     public Optional<Task> updateTask(Long id, Task updatedTask) {
-        for (Task task : tasks) {
-            if (task.getId().equals(id)) {
-                task.setTitle(updatedTask.getTitle());
-                task.setDescription(updatedTask.getDescription());
-                task.setStatus(updatedTask.getStatus());
-                return Optional.of(task);
-            }
-        }
-        return Optional.empty();
+        return taskRepository.findById(id).map(existingTask -> {
+            existingTask.setTitle(updatedTask.getTitle());
+            existingTask.setDescription(updatedTask.getDescription());
+            existingTask.setStatus(updatedTask.getStatus());
+            return taskRepository.save(existingTask);
+        });
+        // If findById is empty, .map() simply ignores the block and returns Optional.empty()
     }
 
     public boolean deleteTask(Long id) {
-        return tasks.removeIf(task -> task.getId().equals(id));
+        if (taskRepository.existsById(id)) {
+            taskRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

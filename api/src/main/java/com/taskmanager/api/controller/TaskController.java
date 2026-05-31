@@ -1,6 +1,6 @@
 package com.taskmanager.api.controller;
 
-import com.taskmanager.api.model.Task;
+import com.taskmanager.api.entity.Task;
 import com.taskmanager.api.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +28,8 @@ public class TaskController {
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<Task> getTaskByID(@PathVariable Long id) {
-        Optional<Task> foundTask = taskService.getTaskByID(id);
+    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+        Optional<Task> foundTask = taskService.getTaskById(id);
         if (foundTask.isEmpty())
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(foundTask.get());
@@ -42,10 +42,10 @@ public class TaskController {
 
     @PutMapping("/tasks/{id}")
     public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
-        Optional<Task> newTask = taskService.updateTask(id, updatedTask);
-        if (newTask.isEmpty())
+        Optional<Task> updated = taskService.updateTask(id, updatedTask);
+        if (updated.isEmpty())
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(newTask.get());
+        return ResponseEntity.ok(updated.get());
 
     }
 

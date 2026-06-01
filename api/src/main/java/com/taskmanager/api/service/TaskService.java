@@ -1,6 +1,9 @@
 package com.taskmanager.api.service;
 
+import com.taskmanager.api.dto.TaskRequestDTO;
+import com.taskmanager.api.dto.TaskResponseDTO;
 import com.taskmanager.api.entity.Task;
+import com.taskmanager.api.mapper.TaskMapper;
 import com.taskmanager.api.repository.TaskRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,31 +13,37 @@ import java.util.Optional;
 @Service
 public class TaskService {
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<TaskResponseDTO> getAllTasks() {
+        return taskRepository.findAll()
+                .stream()
+                .map(taskMapper::toTaskResponseDTO)
+                .toList();
     }
 
-    public Optional<Task> getTaskById(Long id) {
-        return taskRepository.findById(id);
+    public Optional<TaskResponseDTO> getTaskById(Long id) {
+        return taskRepository.findById(id)
+                .map(taskMapper::toTaskResponseDTO); // Here Optional.map() not the same as Stream().map()
     }
 
-    public Task addTask(Task task) {
-        return taskRepository.save(task);
+    public TaskResponseDTO addTask(TaskRequestDTO dto) {
+        Task saved = taskRepository.save(taskMapper.toTask(dto));
+        return taskMapper.toTaskResponseDTO(saved);
     }
 
-    public Optional<Task> updateTask(Long id, Task updatedTask) {
-        return taskRepository.findById(id).map(existingTask -> {
-            existingTask.setTitle(updatedTask.getTitle());
-            existingTask.setDescription(updatedTask.getDescription());
-            existingTask.setStatus(updatedTask.getStatus());
-            return taskRepository.save(existingTask);
+    public Optional<TaskResponseDTO> updateTask(Long id, TaskRequestDTO dto) {
+        return taskRepository.findById(id).map(existing -> {
+            existing.setTitle(dto.title());
+            existing.setDescription(dto.description());
+            existing.setStatus(dto.status());
+            return taskMapper.toTaskResponseDTO(taskRepository.save(existing));
         });
-        // If findById is empty, .map() simply ignores the block and returns Optional.empty()
     }
 
     public boolean deleteTask(Long id) {

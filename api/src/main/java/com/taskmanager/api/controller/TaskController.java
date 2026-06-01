@@ -1,56 +1,51 @@
 package com.taskmanager.api.controller;
 
-import com.taskmanager.api.entity.Task;
+import com.taskmanager.api.dto.TaskRequestDTO;
+import com.taskmanager.api.dto.TaskResponseDTO;
 import com.taskmanager.api.service.TaskService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class TaskController {
 
-    // 1. Declare it as a private final variable
     private final TaskService taskService;
 
-    // 2. Pass it into the constructor.
-    // Spring is smart enough to find its Service Bean and plug it in here automatically.
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
     @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> getAllTasks() {
-        // 3. Now we use the injected instance, NO 'new' keyword!
+    public ResponseEntity<List<TaskResponseDTO>> getAllTasks() {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
     @GetMapping("/tasks/{id}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        Optional<Task> foundTask = taskService.getTaskById(id);
-        if (foundTask.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(foundTask.get());
+    public ResponseEntity<TaskResponseDTO> getTaskById(@PathVariable Long id) {
+        return taskService.getTaskById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/tasks")
-    public ResponseEntity<Task> addTask(@RequestBody Task task) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.addTask(task));
+    public ResponseEntity<TaskResponseDTO> addTask(@RequestBody TaskRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.addTask(dto));
     }
 
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task updatedTask) {
-        Optional<Task> updated = taskService.updateTask(id, updatedTask);
-        if (updated.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(updated.get());
-
+    public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long id, @RequestBody TaskRequestDTO dto) {
+        return taskService.updateTask(id, dto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        return taskService.deleteTask(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return taskService.deleteTask(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }
